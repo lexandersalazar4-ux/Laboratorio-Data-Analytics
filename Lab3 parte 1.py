@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
-
+import requests
 st.title("Análisis de datos estadísticos lab 3")
 
 # Función para cargar datos de forma segura
