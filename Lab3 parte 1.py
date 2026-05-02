@@ -62,11 +62,41 @@ if opcion == "Vehículos" and Carroselectricos is not None:
 
             st.success("Vehículo agregado correctamente ✅")
             st.dataframe(Carroselectricos)
+
+        #Filtro por año anterior al ingresado
+        anio = st.number_input("Filtar por año amximo", min_value=2000,max_value=2025)
+
+        filtro_anio = Carroselectricos[Carroselectricos["Model Year"] < anio]
+        st.subheader("Vehículos filtrados por año")
+        st.dataframe(filtro_anio)
+
+        #Filtro por precio menor al ingresado
+        precio = st.number_input("Filtrar por precio máximo", min_value=0.0, max_value=845000.0)
+
+        filtro_precio = Carroselectricos[Carroselectricos["Base_MSRP"] < precio]
+        st.subheader("Vehículos filtrados por precio")
+        st.dataframe(filtro_precio)
+
 elif opcion == "Gimnasio" and Gimnasio is not None:
     st.header("Datos de Gimnasio")
     st.dataframe(Gimnasio)
     st.subheader("Estadisticas genereales")
     st.write(Gimnasio.describe())
+
+    #Filtro de calorias minimas
+    cal = st.number_input("Calorias minimas",min_value=0.0)
+
+    filtro_cal = Gimnasio[Gimnasio["Calories_Burned"]>= cal]
+    st.subheader("Calorias filtradas por calorias minimas")
+    st.dataframe(filtro_cal)
+
+    #Filtro por grasa maxima
+    porcen_grasa = st.number_input("Filtro por porcentaje de grasa maximo",min_value=0.0,max_value=100.0)
+
+    filtro_grasa = Gimnasio[Gimnasio["Fat_Percentage"]<= porcen_grasa]
+    st.header("Porcentaje de grasa filtrado por porcentaje maximo")
+    st.dataframe(filtro_grasa)
+
 elif opcion == "Videojuegos" and videojuegos is not None:
     st.header("Datos de Steam 2024")
     st.dataframe(videojuegos)
@@ -103,8 +133,42 @@ elif opcion == "Videojuegos" and videojuegos is not None:
 
                 st.success("Videojuego agregado correctamente 🎮")
                 st.dataframe(videojuegos)
+
+    #Filtro de precios por precios mayores
+    precio = st.number_input("Filtro por precio mayor",min_value=0)
+
+    videojuegos["price"] = pd.to_numeric(videojuegos["price"], errors="coerce")
+    filtro_price = videojuegos[videojuegos["price"]>precio]
+    st.header("Filtro de precio por precios mayores")
+    st.dataframe(filtro_price)
+
+    #Filtro por porcentaje de descuento
+    desc = st.number_input("Filtro por porcentaje de descuento",min_value=0.0, max_value=100.0)
+
+    videojuegos["salePercentage"] = pd.to_numeric(videojuegos["salePercentage"], errors="coerce")
+    filtro_desc = videojuegos[videojuegos["salePercentage"]<desc]
+    st.header("Filtro por porcentaje de descuento")
+    st.dataframe(filtro_desc)
+
 elif opcion == "Netflix" and netflix is not None:
     st.header("Datos de Netflix")
     st.dataframe(netflix)
     st.subheader("Estadisticas genereales")
     st.write(netflix.describe())
+
+    #Filtro por año de estreno
+    anio_e = st.number_input("Filtro por año de estreno",min_value=1990, max_value=2025)
+
+    filtro_anio_e = netflix[netflix["release_year"]<anio_e]
+    st.header("Filtro por año de estreno")
+    st.dataframe(filtro_anio_e)
+
+    #Filtro duracion en minutos
+    peliculas = netflix[netflix["type"] == "Movie"]
+    peliculas["duration_int"] = peliculas["duration"].str.extract(r'(\d+)').astype(float)
+
+    duracion = st.number_input("Filtro por duracion en minutos",min_value=0.0)
+
+    filtro_duracion = peliculas[peliculas["duration_int"]>duracion]
+    st.header("Filtro de duracion en minutos")
+    st.dataframe(filtro_duracion)
