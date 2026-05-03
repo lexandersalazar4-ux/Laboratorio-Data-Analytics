@@ -49,6 +49,11 @@ netflix['duration_clean'] = (
     )
 netflix['duration_clean'] = pd.to_numeric(netflix['duration_clean'], errors='coerce').fillna(0)
 
+netflix['date_added_clean'] = pd.to_datetime(netflix['date_added'], errors='coerce')
+
+netflix['year_added'] = netflix['date_added_clean'].dt.year.fillna(0).astype(int)
+
+
 
 #Categoria nueva:GamaJuego
 def definir_gama(precio):
@@ -329,10 +334,10 @@ elif opcion == "Netflix" and netflix is not None:
 
 #-------------------------Seccion de filtros de la data de netflix----------------------------------
     #Filtro por año de estreno
-    anio_e = st.number_input("Filtro por año de estreno",min_value=1990, max_value=2025)
+    anio_e = st.number_input("Filtro por año de añadido",min_value=2016, max_value=2021)
 
-    filtro_anio_e = netflix[netflix["release_year"]<anio_e]
-    st.header("Filtro por año de estreno")
+    filtro_anio_e = netflix[netflix["year_added"]<=anio_e]
+    st.header("Filtro por año de añadido")
     st.dataframe(filtro_anio_e)
 
     #Filtro duracion en minutos
