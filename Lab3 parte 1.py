@@ -276,14 +276,17 @@ elif opcion == "Videojuegos" and videojuegos is not None:
     # Analisis agrupado 
     st.subheader("Analisis Agrupado: Precio, Descuento")
     analisis_vid = videojuegos.groupby('GamaJuego', observed=False).agg({
-        'price_clean': ['mean', 'std'],
-        'salePercentage_clean': 'mean',
-    }).rename(columns={
-        'price_clean': ['Media del precio', 'Desv.Estandar del precio'],
-        'salePercentage_clean': 'Media del porcentage de descuento',
+    'price_clean': ['mean', 'std'],
+    'salePercentage_clean': 'mean',
     })
-    st.dataframe(analisis_vid)
+    analisis_vid.columns = [' '.join(col).strip() for col in analisis_vid.columns]
+    analisis_vid = analisis_vid.rename(columns={
+    'price_clean mean': 'Media del precio',
+    'price_clean std': 'Desv. Estandar del precio',
+    'salePercentage_clean mean': 'Media del porcentaje de descuento',
+    })
 
+    st.dataframe(analisis_vid)
 
 #----------------------------------------NETFLIX---------------------------------------------------------------------
 elif opcion == "Netflix" and netflix is not None:
