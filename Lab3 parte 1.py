@@ -16,11 +16,80 @@ videojuegos = cargar_datos("steam_store_data_2024.csv")
 netflix = cargar_datos("netflix_titles.csv")
 Gimnasio = cargar_datos("GymExerciseTracking.csv")
 
+
 opcion = st.sidebar.selectbox(
     "Selecciona una opción",
     ["Vehículos", "Gimnasio", "Videojuegos", "Netflix"]
 )
+#limpieza de datos 
+videojuegos['price_clean'] = (
+        videojuegos['price']
+        .astype(str)
+        .str.replace('$', '', regex=False)
+        .str.replace(',', '', regex=False)
+        .str.strip()
+    )
+videojuegos['price_clean'] = pd.to_numeric(videojuegos['price_clean'], errors='coerce')
 
+videojuegos['salePercentage_clean'] = (
+        videojuegos['salePercentage']
+        .astype(str)
+        .str.replace('%', '', regex=False)
+        .str.replace('-', '', regex=False)
+        .str.replace(r'[^0-9.]', '', regex=True)
+        .str.strip()
+    )
+
+videojuegos['salePercentage_clean'] = pd.to_numeric(videojuegos['salePercentage_clean'], errors="coerce")
+
+netflix['duration_clean'] = (
+        netflix['duration']
+        .astype(str)
+        .str.extract('(\d+)') 
+    )
+netflix['duration_clean'] = pd.to_numeric(netflix['duration_clean'], errors='coerce').fillna(0)
+
+
+#Categoria nueva:GamaJuego
+def definir_gama(precio):
+    if precio < 10: return "Baja"
+    elif 10 <= precio <= 24: return "Media"
+    else: return "Alta"
+
+videojuegos['GamaJuego'] = videojuegos['price_clean'].apply(definir_gama)
+
+
+ #Variable Categorica:TipoAudiencia
+def categorizar_audiencia(rating):
+        ninos = ['G', 'TV-Y', 'TV-G', 'TV-Y7', 'TV-Y7-FV']
+        adolescentes = ['PG', 'TV-PG']
+        adultos_jovenes = ['PG-13', 'TV-14']
+        adultos = ['R', 'TV-MA', 'NC-17']
+        
+        if rating in ninos: return 'Niños'
+        if rating in adolescentes: return 'Adolescentes'
+        if rating in adultos_jovenes: return 'Adultos Jóvenes'
+        if rating in adultos: return 'Adultos'
+        return 'Sin Clasificar'
+
+netflix['TipoAudiencia'] = netflix['rating'].apply(categorizar_audiencia)
+
+#Categoria nueva:RangoCategoria
+def definir_Rango(rango):
+    if rango < 100: return "Bajo"
+    elif 100 <= rango <= 250: return "Medio"
+    else: return "Alto"
+
+Carroselectricos['RangoCategoria'] = Carroselectricos['Electric_Range'].apply(definir_Rango)
+
+#Categoria nueva:NivelFrecuencia
+def definir_frecuencia(nivel):
+    if nivel < 3: return "Baja"
+    elif 3 <= nivel <= 5: return "Moderada"
+    elif nivel >= 6: return "Alta"
+    return "Desconocido"
+
+Gimnasio['NivelFrecuencia'] = Gimnasio['Workout_Frequency (days/week)'].apply(definir_frecuencia)
 
 #----------------------------------------VEHICULOS---------------------------------------------------------------------
 # Mostrar datos según la opción
@@ -63,7 +132,7 @@ if opcion == "Vehículos" and Carroselectricos is not None:
             Carroselectricos = pd.concat([Carroselectricos, nuevo_registro], ignore_index=True)
             Carroselectricos.to_csv("carroselectricosdatos.csv", index=False)
 
-            st.success("Vehículo agregado correctamente ✅")
+            st.success("Vehículo agregado correctamente ")
             st.dataframe(Carroselectricos)
 
 #-------------------------Seccion de filtros de la data de vehiculos----------------------------------
@@ -85,11 +154,6 @@ if opcion == "Vehículos" and Carroselectricos is not None:
 
         st.divider()
         st.subheader("Exploración Avanzada - Vehículos")
-        
-        # Crear variable categórica
-        bins_ve = [-1, 99, 250, float('inf')]
-        labels_ve = ['Bajo', 'Medio', 'Alto']
-        Carroselectricos['RangoCategoria'] = pd.cut(Carroselectricos['Electric_Range'], bins=bins_ve, labels=labels_ve)
 
         st.divider()
         st.header("Análisis Avanzado: Vehículos")
@@ -144,14 +208,6 @@ elif opcion == "Gimnasio" and Gimnasio is not None:
     st.divider()
     st.subheader("Exploración Avanzada - Gimnasio")
         
-     # Crear variable categórica
-    bins_gim = [-1,2,5,7]
-    labels_gim = ['Baja', 'Moderada', 'Alta']
-    Gimnasio['NivelFrecuencia'] = pd.cut(Gimnasio['Workout_Frequency (days/week)'], bins=bins_gim, labels=labels_gim)
-        
-    st.write("Datos de NivelFrecuencia:")
-    st.dataframe(Gimnasio[['Age', 'Gender', 'Workout_Frequency (days/week)', 'NivelFrecuencia']].head())
-
     st.divider()
     st.header("Análisis Avanzado: Gimnasio")
 
@@ -180,25 +236,6 @@ elif opcion == "Gimnasio" and Gimnasio is not None:
 #----------------------------------------VIDEOJUEGOS---------------------------------------------------------------------
 elif opcion == "Videojuegos" and videojuegos is not None:
     st.header("Datos de Steam 2024")
-    videojuegos['price_clean'] = (
-        videojuegos['price']
-        .astype(str)
-        .str.replace('$', '', regex=False)
-        .str.replace(',', '', regex=False)
-        .str.strip()
-    )
-    videojuegos['price_clean'] = pd.to_numeric(videojuegos['price_clean'], errors='coerce')
-
-    videojuegos['salePercentage_clean'] = (
-        videojuegos['salePercentage']
-        .astype(str)
-        .str.replace('%', '', regex=False)
-        .str.replace('-', '', regex=False)
-        .str.replace(r'[^0-9.]', '', regex=True)
-        .str.strip()
-    )
-
-    videojuegos['salePercentage_clean'] = pd.to_numeric(videojuegos['salePercentage_clean'], errors="coerce")
 
     st.dataframe(videojuegos)
     st.subheader("Estadisticas genereales")
@@ -257,11 +294,6 @@ elif opcion == "Videojuegos" and videojuegos is not None:
     st.divider()
     st.subheader("Exploración Avanzada - Videojuegos")
 
-     # Crear variable categórica
-    bins_vid = [-1,9.99,24,float('inf')]
-    labels_vid = ['Baja', 'Media', 'Alta']
-    videojuegos['GamaJuego'] = pd.cut(videojuegos['price_clean'], bins=bins_vid, labels=labels_vid)
-
     st.divider()
     st.header("Análisis Avanzado: Videojuegos")
 
@@ -317,30 +349,6 @@ elif opcion == "Netflix" and netflix is not None:
 #------------------------------------Seccion de Exploracion avanzada_net--------------------------------
     st.divider()
     st.header("Exploración Avanzada - Netflix")
-
-    #Limpieza de duracion
-   
-    netflix['duration_clean'] = (
-        netflix['duration']
-        .astype(str)
-        .str.extract('(\d+)') 
-    )
-    netflix['duration_clean'] = pd.to_numeric(netflix['duration_clean'], errors='coerce').fillna(0)
-
-    #Variable Categorica:TipoAudiencia
-    def categorizar_audiencia(rating):
-        ninos = ['G', 'TV-Y', 'TV-G', 'TV-Y7', 'TV-Y7-FV']
-        adolescentes = ['PG', 'TV-PG']
-        adultos_jovenes = ['PG-13', 'TV-14']
-        adultos = ['R', 'TV-MA', 'NC-17']
-        
-        if rating in ninos: return 'Niños'
-        if rating in adolescentes: return 'Adolescentes'
-        if rating in adultos_jovenes: return 'Adultos Jóvenes'
-        if rating in adultos: return 'Adultos'
-        return 'Sin Clasificar'
-
-    netflix['TipoAudiencia'] = netflix['rating'].apply(categorizar_audiencia)
 
     st.divider()
     st.subheader("Analisis Avanzado: Netflix")
