@@ -378,3 +378,18 @@ elif opcion == "Netflix" and netflix is not None:
     })
 
     st.dataframe(analisis_netflix)
+
+st.divider()
+st.header("Finalizar y Guardar")
+
+if st.button("Generar archivos actualizados (.csv)"):
+    
+    Carroselectricos.to_csv("Electric_Vehicle_Population_Actualizado.csv", index=False)
+    
+    Gimnasio.to_csv("GymExerciseTracking_Actualizado.csv", index=False)
+    
+    videojuegos.to_csv("steam_store_data_2024_Actualizado.csv", index=False)
+    
+    netflix.to_csv("netflix_titles_Actualizado.csv", index=False)
+    
+    st.success("Los 4 archivos se han guardado con el nombre actualizado.")
