@@ -318,7 +318,7 @@ elif opcion == "Netflix" and netflix is not None:
     st.divider()
     st.header("Exploración Avanzada - Netflix")
 
-    # Limpieza de duracion
+    #Limpieza de duracion
    
     netflix['duration_clean'] = (
         netflix['duration']
